@@ -1,0 +1,229 @@
+openapi: 3.0.0
+info:
+  title: Inventory Management API
+  version: 1.0.0
+  description: API for managing users and inventory products.
+
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+
+paths:
+  /register:
+    post:
+      summary: Register a new user
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                  example: johndoe
+                password:
+                  type: string
+                  format: password
+                  example: password123
+      responses:
+        '201':
+          description: User registered successfully
+        '400':
+          description: User already exists
+        '500':
+          description: Signup failed
+
+  /login:
+    post:
+      summary: User login and token generation
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                  example: johndoe
+                password:
+                  type: string
+                  format: password
+                  example: password123
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        '400':
+          description: Invalid username or password
+        '500':
+          description: Login failed
+
+  /products:
+    post:
+      summary: Add a new product
+      tags: [Products]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, sku, quantity, price]
+              properties:
+                name:
+                  type: string
+                  example: Phone
+                type:
+                  type: string
+                  example: Electronics
+                sku:
+                  type: string
+                  example: SKU12345
+                image_url:
+                  type: string
+                  example: https://example.com/image.jpg
+                description:
+                  type: string
+                  example: A powerful smartphone
+                quantity:
+                  type: integer
+                  example: 10
+                price:
+                  type: number
+                  example: 499.99
+      responses:
+        '201':
+          description: Product created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  product_id:
+                    type: string
+                    example: 60d21b4667d0d8992e610c85
+        '400':
+          description: Missing required fields
+        '500':
+          description: Failed to add product
+
+    get:
+      summary: Retrieve products with pagination
+      tags: [Products]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number for pagination
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Number of products per page
+      responses:
+        '200':
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '500':
+          description: Failed to fetch products
+
+  /products/{id}/quantity:
+    put:
+      summary: Update product quantity
+      tags: [Products]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Product ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [quantity]
+              properties:
+                quantity:
+                  type: integer
+                  example: 15
+      responses:
+        '200':
+          description: Product quantity updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  quantity:
+                    type: integer
+                    example: 15
+        '400':
+          description: Quantity is required
+        '404':
+          description: Product not found
+        '500':
+          description: Failed to update product quantity
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Product:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 60d21b4667d0d8992e610c85
+        name:
+          type: string
+          example: Phone
+        type:
+          type: string
+          example: Electronics
+        sku:
+          type: string
+          example: SKU12345
+        image_url:
+          type: string
+          example: https://example.com/image.jpg
+        description:
+          type: string
+          example: A powerful smartphone
+        quantity:
+          type: integer
+          example: 10
+        price:
+          type: number
+          example: 499.99
