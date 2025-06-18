@@ -1,3 +1,12 @@
+Update for all hosted endpoints:
+
+
+POST https://inventory-management-api-hp6c.onrender.com/register
+POST https://inventory-management-api-hp6c.onrender.com/login
+POST https://inventory-management-api-hp6c.onrender.com/products
+PUT https://inventory-management-api-hp6c.onrender.com/products/{id}/quantity
+GET https://inventory-management-api-hp6c.onrender.com/products
+
 # 📦 Inventory Management API
 
 A simple RESTful API for managing products in an inventory. Built with **Node.js**, **Express**, and **MongoDB**.
